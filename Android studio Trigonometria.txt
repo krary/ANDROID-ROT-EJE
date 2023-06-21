@@ -1,0 +1,36 @@
+ while (true) {
+            // Dibujar el color de fondo para borrar la línea anterior
+            canvas.drawColor(Color.WHITE);
+
+            // Calcular las coordenadas finales de la línea utilizando trigonometría y la rotación
+            float startX = centerX + (float) Math.cos(Math.toRadians(angle)) * radius;
+            float startY = centerY + (float) Math.sin(Math.toRadians(angle)) * radius;
+            float endX = centerX + (float) Math.cos(Math.toRadians(angle + 180)) * radius;
+            float endY = centerY + (float) Math.sin(Math.toRadians(angle + 180)) * radius;
+
+            // Rotar el lienzo alrededor del centro de rotación
+            canvas.rotate(rotationSpeed, centerX, centerY);
+
+            // Dibujar la línea en el lienzo
+            canvas.drawLine(startX, startY, endX, endY, paint);
+
+            angle += rotationSpeed; // Actualizar el ángulo para la siguiente iteración
+
+            if (angle >= 360) {
+                angle -= 360; // Reiniciar el ángulo a 0 después de una vuelta completa
+            }
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    imageView.setImageBitmap(bitmap);
+                }
+            });
+
+            try {
+                Thread.sleep(16); // Aproximadamente 60 cuadros por segundo
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
