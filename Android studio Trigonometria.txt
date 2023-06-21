@@ -1,4 +1,10 @@
- while (true) {
+  float centerX = 50; // Coordenada X del centro de rotación
+        float centerY = 50; // Coordenada Y del centro de rotación
+        float radius = 50; // Radio de la línea
+        float rotationSpeed = 1; // Velocidad de rotación en grados por cuadro
+        float angle = 0; // Ángulo inicial
+
+while (true) {
             // Dibujar el color de fondo para borrar la línea anterior
             canvas.drawColor(Color.WHITE);
 
