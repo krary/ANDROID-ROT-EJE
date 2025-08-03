@@ -16,16 +16,6 @@
 
 
         <!-- Texto debajo del Toolbar -->
-        <TextView
-            android:id="@+id/my_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Lisandro Sarmiento"
-            android:textStyle="bold"
-
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="16dp"
-            android:layout_marginStart="12dp"/>
 
         <!-- Botón debajo del texto -->
         <Button
@@ -36,10 +26,10 @@
             android:textStyle="bold"
             android:textColor="#2F9952"
             android:background="#992F5F"
-            app:layout_constraintTop_toBottomOf="@id/my_label"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="16dp"
-            android:layout_marginStart="12dp"/>
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginBottom="16dp"
+            android:layout_marginEnd="12dp"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- Menú lateral -->
