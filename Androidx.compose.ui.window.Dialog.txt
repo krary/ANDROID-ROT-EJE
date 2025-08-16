@@ -1,0 +1,26 @@
+androidx.compose.ui.window.Dialog(
+onDismissRequest = {variable_remember.value=false})
+//Esta llave es de androidx.compose.ui.window.Dialog{
+   Surface(modifier=Modifer 
+                 .width() 
+                 .height(),
+                 color = Color.Black,
+                 shape = MaterialTheme.shapes.medium,
+                 tonalElevation= 9.dp)
+//Esta llave es de el Surface{
+            Column(modifier = Modifer.padding(12.dp),
+                   horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center){
+                 Text("mensaje",color=Color.White)
+                 Spacer(modifier=Modifier.height(4.dp))
+                Text("mesg",color=Color.White,modifier=Modifier .padding(3.dp)
+.clickable{accion que queremos ejemplo variable_remember.value=false})
+
+}
+
+
+}//Esta llave es de el surface
+
+
+
+}//Esta llave es de androidx.compose.ui.window.Dialog
