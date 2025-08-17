@@ -2,6 +2,7 @@ package com.example.design
 import androidx.compose.foundation.layout.fillMaxWidth
 
 import android.os.Bundle
+import android.provider.MediaStore
 
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,7 +17,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.foundation.lazy.items
 
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.FloatingActionButton
@@ -27,11 +30,15 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 
 import androidx.compose.ui.unit.dp
 import com.example.design.ui.theme.DesignTheme
@@ -53,6 +60,43 @@ class MainActivity : ComponentActivity() {
 
                 }
             }
+        }
+    }
+}
+@Composable
+fun FileList(extension: String) {
+    val context = LocalContext.current
+    var files by remember { mutableStateOf(listOf<String>()) }
+
+    // Buscar archivos cuando cambia la extensión
+    LaunchedEffect(extension) {
+        val pdfFiles = mutableListOf<String>()
+        val projection = arrayOf(MediaStore.Files.FileColumns.DISPLAY_NAME)
+        val selection = "${MediaStore.Files.FileColumns.MIME_TYPE}=?"
+        val selectionArgs = arrayOf("application/pdf")
+
+        val cursor = context.contentResolver.query(
+            MediaStore.Files.getContentUri("external"),
+            projection,
+            selection,
+            selectionArgs,
+            null
+        )
+
+        cursor?.use {
+            val nameColumn = it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME)
+            while (it.moveToNext()) {
+                val name = it.getString(nameColumn)
+                pdfFiles.add(name)
+            }
+        }
+        files = pdfFiles
+    }
+
+    // Mostrar lista
+    LazyColumn {
+        items(files) { file ->
+            Text(text = file, color = Color.Green)
         }
     }
 }
@@ -87,7 +131,12 @@ fun SelectorRow() {
                 )
             }
         }//Aqui termina el for indexado
+        if (setInfo.value != -1 && lista[setInfo.value] == ".Pdf") {
+            FileList(".pdf")
+        }
+
     }
+
     if (showDialog.value) {
         androidx.compose.ui.window.Dialog(
             onDismissRequest = { showDialog.value = false }
