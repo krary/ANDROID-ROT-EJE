@@ -1,0 +1,18 @@
+Steps to creating a info about the wifi information:
+[+] Making the neccesary permission on the file Manifest
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+<uses-permission android:name="android.permission.ACCESS_WIFI"/>
+
+[+]Making  a fun for getting info about the our Network
+fun my_func(context:Context):Map<String,String>{
+      //WE HAVE TO ACCESS TO THE SERVICESS IN THE ANDROID OF NETWORK
+
+var connectivityManager = context.getSytstemService(Context.ConnectivityService) as ConectivityManager  
+   //NOW USING THIS VARIABLE connectivityManager we can make another variable to access to exclusive information about our Net
+var network = connectivityManger.activeNetwork ?:return mapOf("Estado" to "Sin conexion activa") 
+
+
+
+
+
+}

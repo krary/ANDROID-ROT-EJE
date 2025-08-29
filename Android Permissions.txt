@@ -1,17 +1,1 @@
-private val REQUEST_CODE_AUDIO = 100
-val permiso = Manifest.permission.READ_MEDIA_AUDIO
 
-if(ContextCompat.checkselfPermissions(this,permiso) != 
-PackageManager.PERMISSION_GRANTED){
-  
-ActivityCompat.requestPermissions(this,arrayOf(permiso),REQUEST_CODE_AUDIO)
-
-}else{
-
-Accion que quiero realizar
-
-}
-Nota :Para solicitar los permisos con la clase o func ActivityCompat.requestPermission
-tenemos que :
-     modificar el archivo manifest.xml con:
-<uses-permission android:name="android.permission.READ_MEDIA_AUDIO"/> 
