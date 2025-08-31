@@ -40,27 +40,16 @@ fun getNetworkInfo(context: Context): Map<String, String> {
     val linkProperties =
         connectivityManager.getLinkProperties(network) ?: return mapOf("Estado" to "Sin propiedades de red")
 
-    val info = mutableMapOf<String, String>()
+    val info = mutableMapOf<String, String>()  //Esto es lo que vamos a returnar en caso de que las variables de arriba no fallen
 
-    // Direcciones IP + máscara
-    val addresses = linkProperties.linkAddresses.map { addr ->
-        "${addr.address.hostAddress}/${addr.prefixLength} (máscara ${prefixToNetmask(addr.prefixLength)})"
+    // Direcciones IP
+    val addresses = linkProperties.linkAddresses.map {
+        "${it.address.hostAddress}"
     }
     if (addresses.isNotEmpty()) {
         info["Direcciones IP"] = addresses.joinToString("\n")
     }
 
-    // Puertas de enlace
-    val gateways = linkProperties.routes.mapNotNull { it.gateway?.hostAddress }
-    if (gateways.isNotEmpty()) {
-        info["Puertas de enlace"] = gateways.joinToString(", ")
-    }
-
-    // DNS
-    val dnsServers = linkProperties.dnsServers.map { it.hostAddress }
-    if (dnsServers.isNotEmpty()) {
-        info["Servidores DNS"] = dnsServers.joinToString(", ")
-    }
 
     // Nombre de interfaz (ej. wlan0)
     info["Interfaz"] = linkProperties.interfaceName ?: "Desconocida"
@@ -68,11 +57,7 @@ fun getNetworkInfo(context: Context): Map<String, String> {
     return info
 }
 
-// Convierte prefixLength a máscara de red
-fun prefixToNetmask(prefixLength: Int): String {
-    val mask = (0xffffffffL shl (32 - prefixLength)).toInt()
-    return "${mask shr 24 and 0xff}.${mask shr 16 and 0xff}.${mask shr 8 and 0xff}.${mask and 0xff}"
-}
+
 
 // ----------- COMPOSABLE UI -----------
 
