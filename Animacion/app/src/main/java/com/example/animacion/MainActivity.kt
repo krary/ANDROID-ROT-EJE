@@ -83,7 +83,7 @@ fun Field(){
     var texto by remember{mutableStateOf("")}
     Column(modifier = Modifier.padding(16.dp)){
            Spacer(modifier=Modifier.height(59.dp))
-        OutlinedTextField(
+        OutlinedTextField(  
             value = texto,
             onValueChange={texto=it},
             label = {Text("Write something Exm.. .pdf",color=Color.Green)},
