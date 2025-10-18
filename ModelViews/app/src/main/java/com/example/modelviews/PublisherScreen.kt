@@ -1,4 +1,7 @@
+package com.example.modelviews
+
 import android.Manifest
+import android.content.Intent
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -7,37 +10,44 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.example.modelviews.LocationPublisher
 import com.google.accompanist.permissions.*
+import android.net.Uri
+import android.provider.Settings
+import android.util.Log
 
-// Define la UI que controla el envío de ubicación
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun PublisherScreen() {
     val context = LocalContext.current
 
-    // Instancia del Publicador (solo se crea una vez)
-    val publisher: LocationPublisher = remember { LocationPublisher(context) }
-
-    // Estado para controlar si el envío está activo o no
     var isPublishing by remember { mutableStateOf(false) }
 
-    // Define los permisos necesarios
+    // Definir los 3 permisos necesarios
     val locationPermissionsState = rememberMultiplePermissionsState(
         permissions = listOf(
             Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_BACKGROUND_LOCATION
         )
     )
 
-    // Detiene el servicio al salir de la pantalla (limpieza)
-    DisposableEffect(Unit) {
-        onDispose {
-            if (isPublishing) {
-                publisher.stopPublishing()
-            }
-        }
+    // Determinar si todos los permisos están concedidos.
+    // Usamos 'any' para ver si al menos uno de los permisos de ubicación en uso está concedido.
+    val hasForegroundLocation = locationPermissionsState.permissions.any {
+        (it.permission == Manifest.permission.ACCESS_FINE_LOCATION ||
+                it.permission == Manifest.permission.ACCESS_COARSE_LOCATION) && it.status.isGranted
     }
+
+    // Buscar el permiso de segundo plano
+    val backgroundPermissionState = locationPermissionsState.permissions.find {
+        it.permission == Manifest.permission.ACCESS_BACKGROUND_LOCATION
+    }
+
+    // Determinar si la app tiene permiso para segundo plano
+    val hasBackgroundLocation = backgroundPermissionState?.status?.isGranted == true
+
+    // Mostrar sección de permisos si no tenemos AMBOS (Uso + Segundo Plano)
+    val showPermissionSection = !hasForegroundLocation || !hasBackgroundLocation
 
     Column(
         modifier = Modifier
@@ -49,17 +59,19 @@ fun PublisherScreen() {
         Spacer(Modifier.height(32.dp))
 
         // --- Manejo de Permisos ---
-        if (!locationPermissionsState.allPermissionsGranted) {
-            PermissionRequestSection(locationPermissionsState)
+        if (showPermissionSection) {
+            PermissionRequestSection(locationPermissionsState, hasForegroundLocation, hasBackgroundLocation)
         } else {
             // --- Control del Servicio ---
             Button(
                 onClick = {
+                    val serviceIntent = Intent(context, com.example.modelviews.LocationForegroundServices::class.java)
                     if (isPublishing) {
-                        publisher.stopPublishing()
+                        context.stopService(serviceIntent)
                         isPublishing = false
                     } else {
-                        publisher.startPublishing()
+                        // Antes de Android O, solo startService; a partir de O, startForegroundService
+                        context.startForegroundService(serviceIntent)
                         isPublishing = true
                     }
                 },
@@ -69,7 +81,7 @@ fun PublisherScreen() {
                 modifier = Modifier.fillMaxWidth().height(56.dp)
             ) {
                 Text(
-                    text = if (isPublishing) "VERSAND STOPPEN" else "SENDUNG JEDE MINUTE STARTEN",
+                    text = if (isPublishing) "DETENER ENVÍO" else "INICIAR ENVÍO",
                     style = MaterialTheme.typography.titleLarge
                 )
             }
@@ -90,16 +102,66 @@ fun PublisherScreen() {
     }
 }
 
-// Composable para solicitar los permisos
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-private fun PermissionRequestSection(state: MultiplePermissionsState) {
+private fun PermissionRequestSection(
+    state: MultiplePermissionsState,
+    hasForegroundLocation: Boolean,
+    hasBackgroundLocation: Boolean
+) {
+    val context = LocalContext.current
+
+    // Texto de la acción requerida
+    val requiredActionText = remember(hasForegroundLocation, hasBackgroundLocation) {
+        when {
+            !hasForegroundLocation -> "Conceder Ubicación (Mientras se usa)"
+            !hasBackgroundLocation -> "Habilitar 'Permitir todo el tiempo'"
+            else -> "Permisos Concedidos"
+        }
+    }
+
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp)) {
             Text("Se necesitan permisos de ubicación para enviar datos.", style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.height(8.dp))
+
+            // --- Mensaje de estado
+            if (!hasForegroundLocation) {
+                Text(
+                    "Paso 1: Concede los permisos de ubicación iniciales (Precisa).",
+                    color = MaterialTheme.colorScheme.error
+                )
+            } else if (!hasBackgroundLocation) {
+                Text(
+                    "Paso 2: Concede el permiso de **'Permitir todo el tiempo'** en los ajustes de la aplicación para que funcione en segundo plano.",
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
             Spacer(Modifier.height(16.dp))
-            Button(onClick = { state.launchMultiplePermissionRequest() }) {
-                Text("Conceder Permisos")
+
+            // --- Lógica del Botón
+            Button(
+                onClick = {
+                    when {
+                        // Caso 1: Faltan los permisos de ubicación mientras se usa la app (FINE/COARSE).
+                        // Se lanza la solicitud del sistema (Android no muestra BACKGROUND aquí).
+                        !hasForegroundLocation -> {
+                            state.launchMultiplePermissionRequest()
+                        }
+
+                        // Caso 2: Se tienen los permisos de uso, pero falta el de segundo plano.
+                        // Redirigimos al usuario a los ajustes.
+                        !hasBackgroundLocation -> {
+                            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                data = Uri.fromParts("package", context.packageName, null)
+                            }
+                            context.startActivity(intent)
+                        }
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(requiredActionText)
             }
         }
     }

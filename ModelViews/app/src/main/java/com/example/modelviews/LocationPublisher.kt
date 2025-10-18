@@ -9,10 +9,13 @@ import android.util.Log
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.*
 import com.google.firebase.database.FirebaseDatabase
-
-// IMPORTACIONES AÑADIDAS 🎯
 import java.text.SimpleDateFormat
-import java.util.* class LocationPublisher(private val context: Context) {
+import java.util.*
+
+// Necesitarás una clase de datos para Firebase. AÑADE ESTA CLASE:
+
+
+class LocationPublisher(private val context: Context) {
 
     private val fusedLocationClient: FusedLocationProviderClient =
         LocationServices.getFusedLocationProviderClient(context)
@@ -32,7 +35,13 @@ import java.util.* class LocationPublisher(private val context: Context) {
 
     // 1. Inicia la escucha de ubicación
     fun startPublishing() {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+
+            // Aunque el Foreground Service garantiza la ubicación "while-in-use",
+            // para una publicación continua en segundo plano, se idealmente requiere ACCESS_BACKGROUND_LOCATION
+            // que se concede en la pantalla de ajustes
+
             fusedLocationClient.requestLocationUpdates(
                 locationRequest,
                 locationCallback,
@@ -42,7 +51,8 @@ import java.util.* class LocationPublisher(private val context: Context) {
             }
             Log.d("Publisher", "Iniciando envío de ubicación a Firebase.")
         } else {
-            Log.e("Publisher", "Permisos de ubicación no concedidos.")
+            // Este Log debería ser raramente visto si la pantalla Compose funciona correctamente
+            Log.e("Publisher", "Permisos de ubicación no concedidos. El servicio no puede iniciar la escucha.")
         }
     }
 
@@ -53,24 +63,18 @@ import java.util.* class LocationPublisher(private val context: Context) {
 
     // 3. Escribe los datos en Firebase
     private fun publishLocation(location: Location) {
-
-        // 1. Capturar el timestamp
         val currentTimestamp = System.currentTimeMillis()
+        val formatter = SimpleDateFormat("dd/MM/yy HH:mm:ss", Locale.getDefault())
+        val readableTime = formatter.format(Date(currentTimestamp))
 
         val data = LocationData(
             latitude = location.latitude,
             longitude = location.longitude,
-            timestamp = currentTimestamp // Usamos la variable capturada
+            timestamp = readableTime
         )
 
-        // 2. Formatear para Logcat (la aplicación aún envía el Long)
-        val formatter = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
-        val readableTime = formatter.format(Date(currentTimestamp))
-
-        // Usa setValue() para sobrescribir la ubicación anterior con la nueva.
         databaseRef.setValue(data)
             .addOnSuccessListener {
-                // 3. Usar el tiempo legible en el Log
                 Log.i("Publisher", "Ubicación enviada. Lat: ${data.latitude}, Hora: $readableTime")
             }
             .addOnFailureListener { e ->
