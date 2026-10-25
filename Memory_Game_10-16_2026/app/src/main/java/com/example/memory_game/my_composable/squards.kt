@@ -2,6 +2,7 @@ package com.example.memory_game.my_composable
 
 import android.media.AudioAttributes
 import android.media.SoundPool
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -39,7 +40,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
@@ -57,7 +60,7 @@ data class Param(
 )
 @Composable
 fun GameScreen(Click:()->Unit){
-    var param by remember{mutableStateOf(listOf<Param>())}
+    var param = remember{mutableStateListOf<Param>()}
     var show_squad = remember{mutableStateListOf(true,true,true,true,true,true,true,true,true)}
     var box_position = remember{ mutableStateMapOf<Int, Offset>()}
 
@@ -179,17 +182,50 @@ fun GameScreen(Click:()->Unit){
                                             1f
                                         )
                                         scope.launch {
-
                                             for(i in 0 until 9){
-                                                show_squad[i] = false
-                                                delay(250)
+                                                show_squad[i] = false}
+                                            param.clear()
+                                            for(i in 0 until 9){
+
+                                                val p_x = box_position[index]?.x?:0f
+                                                val p_y = box_position[index]?.y?:0f
+                                                var randomVX = Random.nextInt(-15,15).toFloat()
+                                                var randomVY = Random.nextInt(-14,-4).toFloat()
+                                                param.add(
+                                                    Param(
+                                                        x = p_x,
+                                                        y = p_y,
+                                                        vx =  randomVX,
+                                                        vy = randomVY,
+                                                        speed = 0.6f,
+                                                        color = Color(
+                                                            red = Random.nextFloat(),
+                                                            green = Random.nextFloat(),
+                                                            blue = Random.nextFloat(),
+                                                            alpha = 1f
+                                                        ))
+                                                )
+
+                                            }//AQUI TERMINA EL FOR
+                                            repeat(60){
                                                 withFrameNanos {
-                                                    var nvx = param[i]//
+                                                    for(i in param.indices){
+                                                        var nvx = param[i].vx + param[i].x
+                                                        var nvy = param[i].vy + param[i].speed
+                                                        var n_vy = nvy +  param[i].y
+                                                        param[i] = param[i].copy(
+                                                            x = nvx,
+                                                            y = n_vy,
+                                                            vy = nvy
+                                                        )
+                                                    }
                                                 }
 
+                                            }//AQUI TERMINA EL REPEAD
 
 
-                                            }
+
+
                                             for(i in 0 until 9){
                                                 show_squad[i] = true
                                                 delay(250) }
@@ -215,27 +251,7 @@ fun GameScreen(Click:()->Unit){
              onClick = {
                  scope.launch {
 
-                 param = List(9){
-                     index->
-                     val p_x = box_position[index]?.x?:0f
-                     val p_y = box_position[index]?.y?:0f
-                     var randomVX = Random.nextInt(-15,15).toFloat()
-                     var randomVY = Random.nextInt(-14,-4).toFloat()
-                     Param(
-                         x = p_x,
-                         y = p_y,
-                         vx =  randomVX,
-                         vy = randomVY,
-                         speed = 0.6f,
-                         color = Color(
-                             red = Random.nextFloat(),
-                             green = Random.nextFloat(),
-                             blue = Random.nextFloat(),
-                             alpha = 1f
-                         ))
 
-
-                 }
 
                      show_squad.replaceAll{true}
                      state_player = false
@@ -255,7 +271,18 @@ fun GameScreen(Click:()->Unit){
                 text = if(state_scope){ "memoriza.." }
                        else{ "Mostrar Secuencia" })
         }
-
-
+for(i in 0 until 8){
+    if(show_squad[i] == false){
+        Canvas(modifier=Modifier
+            .fillMaxSize()){
+            drawRoundRect(
+                color = param[i].color,
+                topLeft = Offset(param[i].x,param[i].y),
+                size = Size(32f,32f),
+                cornerRadius = CornerRadius(12f,12f)
+            )
+        }
     }
+
+    }}
 }
