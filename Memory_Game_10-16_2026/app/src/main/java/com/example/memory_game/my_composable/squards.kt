@@ -184,7 +184,7 @@ fun GameScreen(Click:()->Unit){
                                                 show_squad[i] = false
                                                 delay(250)
                                                 withFrameNanos {
-                                                    var nvx = param[i]
+                                                    var nvx = param[i]//
                                                 }
 
 
