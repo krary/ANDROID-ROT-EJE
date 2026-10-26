@@ -60,7 +60,8 @@ data class Param(
 )
 @Composable
 fun GameScreen(Click:()->Unit){
-    var param = remember{mutableStateListOf<Param>()}
+    var win by remember{mutableStateOf(false)}
+    var param by remember{mutableStateOf(listOf<Param>())}
     var show_squad = remember{mutableStateListOf(true,true,true,true,true,true,true,true,true)}
     var box_position = remember{ mutableStateMapOf<Int, Offset>()}
 
@@ -92,197 +93,213 @@ fun GameScreen(Click:()->Unit){
     var scope = rememberCoroutineScope()
     var state_player by remember{ mutableStateOf(false)}
     var mensaje by remember{mutableStateOf("Pulse para Reproducir la Sequencia")}
-    Column(
-    modifier = Modifier
-        .fillMaxSize()
-        .background(Color(0xFF171923))
-        .padding(24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally){
-        LaunchedEffect(cuadrado_activo){
-            if(cuadrado_activo != -1){
-                soundPool.play(
-                    sonido_squad,
-                    1f,
-                    1f,
-                    1,
-                    0,
-                    1f
-                )
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF171923))
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFF171923))
+                .padding(24.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            LaunchedEffect(cuadrado_activo) {
+                if (cuadrado_activo != -1) {
+                    soundPool.play(
+                        sonido_squad,
+                        1f,
+                        1f,
+                        1,
+                        0,
+                        1f
+                    )
+                }
             }
-        }
-        Text(
-            text="Memoriza la secuencia!!",
-            color = Color.White,
-            style = MaterialTheme.typography.headlineLarge
-        )
-        Spacer(modifier = Modifier.height(24.dp))
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(3),
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp))
-        {
-            items(num_squad){index ->
-                if(show_squad[index]) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .aspectRatio(1f)
-                            .onGloballyPositioned{coordenadas->
-                                val position = coordenadas.positionInRoot()
-                                box_position[index] = position
-                            }
-                            .clickable {
-                                if (state_player && random_list.isNotEmpty()) {
-                                    if (index == random_list[index_player]) {
+            Text(
+                text = "Memoriza la secuencia!!",
+                color = Color.White,
+                style = MaterialTheme.typography.headlineLarge
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            )
+            {
+                items(num_squad) { index ->
+                    if (show_squad[index]) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .aspectRatio(1f)
+                                .onGloballyPositioned { coordenadas ->
+                                    val position = coordenadas.positionInRoot()
+                                    box_position[index] = position
+                                }
+                                .clickable {
+                                    if (state_player && random_list.isNotEmpty()) {
+                                        if (index == random_list[index_player]) {
 
-                                        index_player++
-                                        scope.launch {
-                                            cuadrado_activo = index
-                                            delay(180)
-                                            cuadrado_activo = -1
+                                            index_player++
+                                            scope.launch {
+                                                cuadrado_activo = index
+                                                delay(180)
+                                                cuadrado_activo = -1
 
 
-                                            if (index_player == random_list.size) {
-                                                state_player = false
-                                                mensaje = "Has ganado!!"
+                                                if (index_player == random_list.size) {
 
-                                               random_list.map {
-                                                    ii->
-                                                    show_squad[ii] = false
-                                                    delay(500)
-                                                    show_squad[ii] = true
-                                                    delay(250)
+                                                    state_player = false
+                                                    mensaje = "Has ganado!!"
+                                                    soundPool.play(
+                                                        win_game,
+                                                        1f,
+                                                        1f,
+                                                        1,
+                                                        0,
+                                                        1f
+                                                    )
+                                                     state_scope = true
+                                                    //=========================================================
+                                                    for (ii in random_list) {
+                                                        var posBox =
+                                                            box_position[ii] ?: Offset(0f, 0f)
+                                                        param = List(50) {
+                                                            val XRandom_ =
+                                                                Random.nextInt(-12, 12).toFloat()
+                                                            val YRandom_ =
+                                                                Random.nextInt(-10, -2).toFloat()
+                                                            Param(
+                                                                x = posBox.x,
+                                                                y = posBox.y,
+                                                                vx = XRandom_,
+                                                                vy = YRandom_,
+                                                                speed = 0.6f,
+                                                                color = Color(
+                                                                    red = Random.nextFloat(),
+                                                                    green = Random.nextFloat(),
+                                                                    blue = Random.nextFloat(),
+                                                                    alpha = 1f
+                                                                )
+                                                            )
+                                                        }
+
+
+                                                        win = true
+
+                                                        show_squad[ii] = false
+                                                        val start_time = System.currentTimeMillis()
+                                                        while (System.currentTimeMillis() - start_time < 1000) {
+                                                            withFrameNanos { _ ->
+                                                                param = param.map { pp ->
+                                                                    val nv_y = pp.vy + pp.speed
+                                                                    val Nv_y = nv_y + pp.y
+                                                                    val nv_x = pp.x + pp.vx
+                                                                    pp.copy(
+                                                                        x = nv_x,
+                                                                        y = Nv_y,
+                                                                        vy = nv_y
+                                                                    )
+                                                                }
+                                                            }//AQUI TERMINA EL WITHFRAMENANOS
+                                                        }// AQUI TERMINA EL WHILE
+                                                        show_squad[ii] = true
+                                                        win = false
+                                                        delay(500)
+
+                                                    }//AQUI TERMINA EL BUCLE FOR
+                                                    state_scope = false
+
+
+                                                    //========================================================
+                                                    easy++
+                                                    //num_squad += 3
+
+                                                } else {
+                                                    mensaje = "Bien sigue la secuencia"
                                                 }
-                                                easy++
-                                                //num_squad += 3
-                                                soundPool.play(
-                                                    win_game,
-                                                    1f,
-                                                    1f,
-                                                    1,
-                                                    0,
-                                                    1f
-                                                )
-                                            } else {
-                                                mensaje = "Bien sigue la secuencia"
+
                                             }
 
-                                        }
-
-                                    } else {
-                                        state_player = false
-                                        soundPool.play(
-                                            failure_game,
-                                            1f,
-                                            1f,
-                                            1,
-                                            0,
-                                            1f
-                                        )
-                                        scope.launch {
-                                            for(i in 0 until 9){
-                                                show_squad[i] = false}
-                                            param.clear()
-                                            for(i in 0 until 9){
-
-                                                val p_x = box_position[index]?.x?:0f
-                                                val p_y = box_position[index]?.y?:0f
-                                                var randomVX = Random.nextInt(-15,15).toFloat()
-                                                var randomVY = Random.nextInt(-14,-4).toFloat()
-                                                param.add(
-                                                    Param(
-                                                        x = p_x,
-                                                        y = p_y,
-                                                        vx =  randomVX,
-                                                        vy = randomVY,
-                                                        speed = 0.6f,
-                                                        color = Color(
-                                                            red = Random.nextFloat(),
-                                                            green = Random.nextFloat(),
-                                                            blue = Random.nextFloat(),
-                                                            alpha = 1f
-                                                        ))
-                                                )
-
-                                            }//AQUI TERMINA EL FOR
-                                            repeat(60){
-                                                withFrameNanos {
-                                                    for(i in param.indices){
-                                                        var nvx = param[i].vx + param[i].x
-                                                        var nvy = param[i].vy + param[i].speed
-                                                        var n_vy = nvy +  param[i].y
-                                                        param[i] = param[i].copy(
-                                                            x = nvx,
-                                                            y = n_vy,
-                                                            vy = nvy
-                                                        )
-                                                    }
-                                                }
-
-                                            }//AQUI TERMINA EL REPEAD
+                                        } else {
+                                            state_player = false
+                                            soundPool.play(
+                                                failure_game,
+                                                1f,
+                                                1f,
+                                                1,
+                                                0,
+                                                1f
+                                            )
+                                            scope.launch {
 
 
-
-
-                                            for(i in 0 until 9){
-                                                show_squad[i] = true
-                                                delay(250) }
-
-
-
-                                        }//AQUI TERMINA EL SCOPE.LAUNCH
-                                    }//AQUI TERMINA EL ELF
+                                            }//AQUI TERMINA EL SCOPE.LAUNCH
+                                        }//AQUI TERMINA EL ELF
+                                    }
                                 }
-                            }
-                            .background(
-                                color = if (cuadrado_activo == index) {
-                                    Color(0xFF55EFC4)
-                                } else {
-                                    Color(0xFF353B50)
-                                }, shape = RoundedCornerShape(12.dp)
-                            ))//AQUI TERMINA EL BOX
-                }//AQUI TERMINA EL IF
+                                .background(
+                                    color = if (cuadrado_activo == index) {
+                                        Color(0xFF55EFC4)
+                                    } else {
+                                        Color(0xFF353B50)
+                                    }, shape = RoundedCornerShape(12.dp)
+                                ))//AQUI TERMINA EL BOX
+                    }//AQUI TERMINA EL IF
+                }
             }
-        }
-        Spacer(modifier=Modifier.height(24.dp))
-        Button(
-             onClick = {
-                 scope.launch {
+            Spacer(modifier = Modifier.height(24.dp))
+            Button(
+                onClick = {
+                    scope.launch {
 
 
-
-                     show_squad.replaceAll{true}
-                     state_player = false
-                     state_scope = true
-                     index_player = 0
-                     random_list = List(easy) { Random.nextInt(9) }
-                     for(c in random_list){
-                         cuadrado_activo = c
-                         delay(500)
-                         cuadrado_activo = -1
-                         delay(250) }
-                     state_scope = false
-                      state_player = true}
-             },
-            enabled = !state_scope)
-        { Text(
-                text = if(state_scope){ "memoriza.." }
-                       else{ "Mostrar Secuencia" })
-        }
-for(i in 0 until 8){
-    if(show_squad[i] == false){
-        Canvas(modifier=Modifier
-            .fillMaxSize()){
-            drawRoundRect(
-                color = param[i].color,
-                topLeft = Offset(param[i].x,param[i].y),
-                size = Size(32f,32f),
-                cornerRadius = CornerRadius(12f,12f)
+                        show_squad.replaceAll { true }
+                        state_player = false
+                        state_scope = true
+                        index_player = 0
+                        random_list = List(easy) { Random.nextInt(9) }
+                        for (c in random_list) {
+                            cuadrado_activo = c
+                            delay(500)
+                            cuadrado_activo = -1
+                            delay(250)
+                        }
+                        state_scope = false
+                        state_player = true
+                    }
+                },//AQUI TERMINA EL ONCLICK DE BUTTON
+                enabled = !state_scope
             )
-        }
-    }
+            {
+                Text(
+                    text = if (state_scope) {
+                        "memoriza.."
+                    } else {
+                        "Mostrar Secuencia"
+                    }
+                )
+            }
 
-    }}
+
+        }//AQUI TERMINA COLUMN
+        if (win) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                param.map { particula ->
+                    drawRoundRect(
+                        color = particula.color,
+                        topLeft = Offset(particula.x, particula.y),
+                        size = Size(32f, 32f),
+                        cornerRadius = CornerRadius(12f, 12f)
+                    )
+                }   //AQUI TERMINA EL MAP
+            }//AQUI TERMINA EL CANVAS
+
+        }//AQUI TERMINA EL IF
+    }//AQUI TERMINA EL BOX
 }
