@@ -2,6 +2,7 @@ package com.example.memory_game.my_composable
 
 import android.media.AudioAttributes
 import android.media.SoundPool
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,6 +19,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -274,7 +276,16 @@ fun GameScreen(Click:()->Unit){
                         state_player = true
                     }
                 },//AQUI TERMINA EL ONCLICK DE BUTTON
-                enabled = !state_scope
+                enabled = !state_scope,
+                shape = RoundedCornerShape(12.dp),
+                border = BorderStroke(2.dp,Color(0xFF3E2723)),
+                colors =  ButtonDefaults.buttonColors(
+                    containerColor = Color.Gray
+                ),
+                elevation = ButtonDefaults.buttonElevation(
+                    defaultElevation = 8.dp,
+                    pressedElevation = 2.dp
+                )
             )
             {
                 Text(
