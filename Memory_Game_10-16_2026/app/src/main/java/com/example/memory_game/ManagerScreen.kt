@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,7 +36,10 @@ import com.example.memory_game.my_composable.GameScreen
 
 enum class Screen{
     Start,
-    Game
+
+    Game,
+    Level_On
+
 }
 
 @Composable
@@ -43,7 +47,8 @@ fun MainApp(){
     var current_screen by remember{mutableStateOf(Screen.Start)}
     when(current_screen){
         Screen.Start -> StartScreen(Click= {current_screen = Screen.Game})
-        Screen.Game -> GameScreen(Click={current_screen=Screen.Start})
+        Screen.Game -> Levels(onLevelSelected ={current_screen=Screen.Level_On})
+        Screen.Level_On-> GameScreen (Click= {current_screen = Screen.Game} )
     }
 }
 
@@ -67,7 +72,7 @@ fun StartScreen(Click:()->Unit){
 @Composable
 fun Levels(
     totalLevels:Int = 10,
-    unlockedLevel:Int = 3,
+    unlockedLevel:Int = 1,
     onLevelSelected: (Int) -> Unit){
     Box(modifier =Modifier.fillMaxSize()){
     Column(modifier = Modifier
@@ -127,6 +132,15 @@ fun LevelCard3D(levelNumber:Int,isUnlocked:Boolean,onClick:()->Unit){
             .clickable(enabled = isUnlocked){onClick()},
         contentAlignment = Alignment.Center)
         {
+        Box( modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom=4.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(baseColor),
+            contentAlignment = Alignment.Center
+        ){
+
+        }
 
         }
 
