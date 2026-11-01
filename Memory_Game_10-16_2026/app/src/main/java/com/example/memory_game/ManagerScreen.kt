@@ -1,10 +1,18 @@
 package com.example.memory_game
 
+import android.graphics.Paint
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,7 +24,21 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.ArrowCircleLeft
+import androidx.compose.material.icons.filled.ArrowCircleUp
+import androidx.compose.material.icons.filled.ArrowDropDownCircle
+import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Score
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -74,12 +96,22 @@ fun Levels(
     totalLevels:Int = 10,
     unlockedLevel:Int = 1,
     onLevelSelected: (Int) -> Unit){
+    var expanded by remember{mutableStateOf(false)}
     Box(modifier =Modifier.fillMaxSize()){
+
+
+
     Column(modifier = Modifier
         .fillMaxSize()
-        .background(Color(0xFF171923)),
+        .background(Color(0xFF171923))
+        .padding(vertical = 367.dp),
+
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally){
+
+
+
+
         Text("SELECCIONA UN NIVEL.....",
             style= MaterialTheme.typography.titleMedium,
             color = Color.White,
@@ -110,6 +142,69 @@ fun Levels(
 
         }
     }//AQUI TERMINA EL COLUMN
+        //==================================================================
+        Row(modifier = Modifier
+            .padding(vertical = 60.dp)
+            , horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically){
+            IconButton(
+            onClick = {expanded = !expanded},
+            Modifier.size(45.dp))
+            {
+                Icon(
+                    imageVector = Icons.Filled.Menu,
+                    tint = Color.White,
+                    contentDescription = "Menu",
+                    modifier = Modifier.size(35.dp))
+
+            }
+            AnimatedVisibility(
+                visible = expanded,
+                enter = expandHorizontally(expandFrom = Alignment.Start) + fadeIn(),
+                exit = shrinkHorizontally (shrinkTowards = Alignment.Start) + fadeOut()
+                ){
+                Row(modifier = Modifier
+                    .padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center){
+                    IconButton(onClick = {expanded = !expanded},modifier = Modifier.size(48.dp)){
+                     Icon(
+                         imageVector = Icons.Filled.Score,
+                         contentDescription = "score",
+                         tint = Color.White,
+                         modifier = Modifier.size(28.dp)
+                     )
+                    }
+                    IconButton(onClick = {expanded = !expanded},modifier = Modifier.size(48.dp)){
+                        Icon(
+                            imageVector = Icons.Filled.Person,
+                            contentDescription = "perfil",
+                            tint = Color.White,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
+                    IconButton(onClick = {expanded = !expanded},modifier = Modifier.size(48.dp)){
+                        Icon(
+                            imageVector = Icons.Filled.Settings,
+                            contentDescription = "score",
+                            tint = Color.White,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
+                    IconButton(onClick = {expanded = !expanded},modifier = Modifier.size(48.dp)){
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBackIosNew,
+                            contentDescription = "score",
+                            tint = Color.White,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
+                }
+
+            }
+        }
+        //==================================================================
+
     }//AQUI TERMINA EL BOX
 
 }//AQUI TERMINA EL COMPOSABLE

@@ -2,6 +2,11 @@ package com.example.memory_game.my_composable
 
 import android.media.AudioAttributes
 import android.media.SoundPool
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -16,9 +21,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Score
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -66,6 +78,7 @@ data class Param(
 )
 @Composable
 fun GameScreen(Click:()->Unit){
+    var expanded by remember{mutableStateOf(false)}
     var win by remember{mutableStateOf(false)}
     var param by remember{mutableStateOf(listOf<Param>())}
     var show_squad = remember{mutableStateListOf(true,true,true,true,true,true,true,true,true)}
@@ -326,5 +339,70 @@ fun GameScreen(Click:()->Unit){
             }//AQUI TERMINA EL CANVAS
 
         }//AQUI TERMINA EL IF
+
+
+
+        //==================================================================
+        Row(modifier = Modifier
+            .padding(vertical = 60.dp)
+            , horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically){
+            IconButton(
+                onClick = {expanded = !expanded},
+                Modifier.size(45.dp))
+            {
+                Icon(
+                    imageVector = Icons.Filled.Menu,
+                    tint = Color.White,
+                    contentDescription = "Menu",
+                    modifier = Modifier.size(35.dp))
+
+            }
+            AnimatedVisibility(
+                visible = expanded,
+                enter = expandHorizontally(expandFrom = Alignment.Start) + fadeIn(),
+                exit = shrinkHorizontally (shrinkTowards = Alignment.Start) + fadeOut()
+            ){
+                Row(modifier = Modifier
+                    .padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center){
+                    IconButton(onClick = {expanded = !expanded},modifier = Modifier.size(48.dp)){
+                        Icon(
+                            imageVector = Icons.Filled.Score,
+                            contentDescription = "score",
+                            tint = Color.White,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
+                    IconButton(onClick = {expanded = !expanded},modifier = Modifier.size(48.dp)){
+                        Icon(
+                            imageVector = Icons.Filled.Person,
+                            contentDescription = "perfil",
+                            tint = Color.White,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
+                    IconButton(onClick = {expanded = !expanded},modifier = Modifier.size(48.dp)){
+                        Icon(
+                            imageVector = Icons.Filled.Settings,
+                            contentDescription = "score",
+                            tint = Color.White,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
+                    IconButton(onClick = {expanded = !expanded},modifier = Modifier.size(48.dp)){
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBackIosNew,
+                            contentDescription = "score",
+                            tint = Color.White,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
+                }
+
+            }
+        }
+        //==================================================================
     }//AQUI TERMINA EL BOX
 }
