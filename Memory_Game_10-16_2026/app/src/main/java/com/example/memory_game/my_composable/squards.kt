@@ -78,6 +78,7 @@ data class Param(
 )
 @Composable
 fun GameScreen(Click:()->Unit){
+    var unLockedLevel by remember { mutableStateOf(1) }
     var expanded by remember{mutableStateOf(false)}
     var win by remember{mutableStateOf(false)}
     var param by remember{mutableStateOf(listOf<Param>())}
@@ -367,7 +368,7 @@ fun GameScreen(Click:()->Unit){
                     .padding(vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center){
-                    IconButton(onClick = {expanded = !expanded},modifier = Modifier.size(48.dp)){
+                    IconButton(onClick = {Click()},modifier = Modifier.size(48.dp)){
                         Icon(
                             imageVector = Icons.Filled.Score,
                             contentDescription = "score",
@@ -391,10 +392,10 @@ fun GameScreen(Click:()->Unit){
                             modifier = Modifier.size(28.dp)
                         )
                     }
-                    IconButton(onClick = {expanded = !expanded},modifier = Modifier.size(48.dp)){
+                    IconButton(onClick = Click,modifier = Modifier.size(48.dp)){
                         Icon(
                             imageVector = Icons.Filled.ArrowBackIosNew,
-                            contentDescription = "score",
+                            contentDescription = "takeBack",
                             tint = Color.White,
                             modifier = Modifier.size(28.dp)
                         )

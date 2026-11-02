@@ -69,7 +69,7 @@ fun MainApp(){
     var current_screen by remember{mutableStateOf(Screen.Start)}
     when(current_screen){
         Screen.Start -> StartScreen(Click= {current_screen = Screen.Game})
-        Screen.Game -> Levels(onLevelSelected ={current_screen=Screen.Level_On})
+        Screen.Game -> Levels(Click = {current_screen = Screen.Start}, onLevelSelected ={current_screen=Screen.Level_On})
         Screen.Level_On-> GameScreen (Click= {current_screen = Screen.Game} )
     }
 }
@@ -93,6 +93,7 @@ fun StartScreen(Click:()->Unit){
         } } }
 @Composable
 fun Levels(
+    Click: () -> Unit,
     totalLevels:Int = 10,
     unlockedLevel:Int = 1,
     onLevelSelected: (Int) -> Unit){
@@ -186,15 +187,15 @@ fun Levels(
                     IconButton(onClick = {expanded = !expanded},modifier = Modifier.size(48.dp)){
                         Icon(
                             imageVector = Icons.Filled.Settings,
-                            contentDescription = "score",
+                            contentDescription = "settings",
                             tint = Color.White,
                             modifier = Modifier.size(28.dp)
                         )
                     }
-                    IconButton(onClick = {expanded = !expanded},modifier = Modifier.size(48.dp)){
+                    IconButton(onClick = Click,modifier = Modifier.size(48.dp)){
                         Icon(
                             imageVector = Icons.Filled.ArrowBackIosNew,
-                            contentDescription = "score",
+                            contentDescription = "takeBack",
                             tint = Color.White,
                             modifier = Modifier.size(28.dp)
                         )
@@ -234,7 +235,18 @@ fun LevelCard3D(levelNumber:Int,isUnlocked:Boolean,onClick:()->Unit){
             .background(baseColor),
             contentAlignment = Alignment.Center
         ){
+           Column(
+               horizontalAlignment = Alignment.CenterHorizontally
+           ){
+               Text(text = "NIVEL",color = textColor.copy(alpha = 0.8f),
+                   fontSize = 12.sp, fontWeight = FontWeight.Bold)
 
+               Text(text = "$levelNumber",color = textColor, fontSize = 28.sp, fontWeight = FontWeight.Black)
+                if(!isUnlocked){
+                    Text(text = "🔒", fontSize = 18.sp)
+                }
+
+           }//AQUI TERMINA EL COLUMN
         }
 
         }
