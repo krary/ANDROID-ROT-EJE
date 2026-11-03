@@ -15,8 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.memory_game.my_composable.GameScreen
 import com.example.memory_game.ui.theme.Memory_gameTheme
+import name
 
-import visible
 
 class MainActivity : ComponentActivity() {
 
@@ -24,8 +24,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-        //visible()
+
         //ShatterDemoScreen()
-        MainApp()
+        //MainApp()
+            name()
+
+
         }
     }}
