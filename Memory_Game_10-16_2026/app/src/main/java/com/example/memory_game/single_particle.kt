@@ -55,6 +55,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.map
@@ -62,11 +63,13 @@ import kotlinx.coroutines.flow.map
 
 val Context.mi_data by preferencesDataStore( name = "user_preferences")
 val USER_NAME_KEY = stringPreferencesKey("user_name")
+val MY_NUMBER_KEY = intPreferencesKey("age")
 
-suspend fun superFloat(context: Context, name:String){
+suspend fun superFloat(context: Context, name:String,age:Int){
       context.mi_data.edit{
             preferences ->
                   preferences[USER_NAME_KEY] = name
+                  preferences[MY_NUMBER_KEY] = age
       }
 }
 

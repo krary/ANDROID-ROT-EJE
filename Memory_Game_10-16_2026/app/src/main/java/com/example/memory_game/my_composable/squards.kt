@@ -1,5 +1,6 @@
 package com.example.memory_game.my_composable
 
+import android.content.Context
 import android.media.AudioAttributes
 import android.media.SoundPool
 import androidx.compose.animation.AnimatedVisibility
@@ -40,6 +41,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -64,9 +66,16 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
+import com.example.memory_game.LEVEL_KEY
 import com.example.memory_game.R
+import com.example.memory_game.edit_value
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import mi_data
 import kotlin.random.Random
 data class Param(
     var x : Float,
@@ -76,9 +85,15 @@ data class Param(
     var color : Color,
     var speed: Float
 )
+
 @Composable
 fun GameScreen(Click:()->Unit){
-    var unLockedLevel by remember { mutableStateOf(1) }
+
+    val context = LocalContext.current
+    val unLockedLevel by context.mi_data.data.map {
+        preferences ->
+            preferences[LEVEL_KEY] ?:1
+    }.collectAsState(initial = 1)
     var expanded by remember{mutableStateOf(false)}
     var win by remember{mutableStateOf(false)}
     var param by remember{mutableStateOf(listOf<Param>())}
@@ -86,7 +101,7 @@ fun GameScreen(Click:()->Unit){
     var box_position = remember{ mutableStateMapOf<Int, Offset>()}
 
    var menuAbierto by remember{mutableStateOf(false)}
-    val context = LocalContext.current
+
     val soundPool = remember {
         SoundPool.Builder()
             .setMaxStreams(4)
@@ -195,6 +210,13 @@ fun GameScreen(Click:()->Unit){
                                                         1f
                                                     )
                                                      state_scope = true
+                                                    if(easy >= 7){
+                                                        var current_level = unLockedLevel + 1
+
+                                                        edit_value(context,current_level) }
+                                                    
+
+
                                                     //=========================================================
                                                     for (ii in random_list) {
                                                         var posBox =
@@ -254,7 +276,7 @@ fun GameScreen(Click:()->Unit){
                                                     mensaje = "Bien sigue la secuencia"
                                                 }
 
-                                            }
+                                            }//AQUI TERMINA EL LAUNCH DE EL SCOPE
 
                                         } else {
                                             state_player = false

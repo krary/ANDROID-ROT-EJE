@@ -26,8 +26,8 @@ class MainActivity : ComponentActivity() {
         setContent {
 
         //ShatterDemoScreen()
-        //MainApp()
-            name()
+        MainApp()
+        // name()
 
 
         }

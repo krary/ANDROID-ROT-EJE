@@ -1,5 +1,6 @@
 package com.example.memory_game
 
+import android.content.Context
 import android.graphics.Paint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
@@ -42,19 +43,27 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import com.example.memory_game.my_composable.GameScreen
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
 enum class Screen{
     Start,
@@ -63,7 +72,14 @@ enum class Screen{
     Level_On
 
 }
-
+val Context.my_database by preferencesDataStore("user_data")
+val LEVEL_KEY = intPreferencesKey("level_user")
+suspend fun edit_value(context:Context,num:Int){
+    context.my_database.edit {
+            preferences ->
+        preferences[LEVEL_KEY] = num
+    }
+}
 @Composable
 fun MainApp(){
     var current_screen by remember{mutableStateOf(Screen.Start)}
@@ -76,6 +92,7 @@ fun MainApp(){
 
 @Composable
 fun StartScreen(Click:()->Unit){
+
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -95,8 +112,13 @@ fun StartScreen(Click:()->Unit){
 fun Levels(
     Click: () -> Unit,
     totalLevels:Int = 10,
-    unlockedLevel:Int = 1,
     onLevelSelected: (Int) -> Unit){
+    var context = LocalContext.current
+    val unlockedLevel by context.my_database.data.map{
+        preferences ->
+                preferences[LEVEL_KEY] ?: 1
+    }.collectAsState(initial = 1)
+
     var expanded by remember{mutableStateOf(false)}
     Box(modifier =Modifier.fillMaxSize()){
 
@@ -128,7 +150,7 @@ fun Levels(
 
             items(totalLevels){index ->
                     val levelNum = index +1
-                     val isUnlocked = levelNum <=unlockedLevel
+                     val isUnlocked = levelNum <= unlockedLevel
                       LevelCard3D(
                           levelNumber = levelNum,
                           isUnlocked = isUnlocked,
