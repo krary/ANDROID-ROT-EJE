@@ -28,9 +28,9 @@ class MainActivity : ComponentActivity() {
         setContent {
 
         //ShatterDemoScreen()
-        //MainApp()
+        MainApp()
         // name()
-            LevelUpRewardScreen(Clickkk = {})
+        //LevelUpRewardScreen(Clickkk = {})
 
         }
     }}

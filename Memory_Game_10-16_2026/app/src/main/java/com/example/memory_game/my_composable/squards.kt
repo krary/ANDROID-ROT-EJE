@@ -1,5 +1,6 @@
 package com.example.memory_game.my_composable
 
+import LevelUpRewardScreen
 import android.content.Context
 import android.media.AudioAttributes
 import android.media.SoundPool
@@ -87,7 +88,7 @@ data class Param(
 )
 
 @Composable
-fun GameScreen(Click:()->Unit){
+fun GameScreen(Click:()->Unit,Rewards:() -> Unit){
 
     val context = LocalContext.current
     val unLockedLevel by context.mi_data.data.map {
@@ -128,6 +129,7 @@ fun GameScreen(Click:()->Unit){
     var scope = rememberCoroutineScope()
     var state_player by remember{ mutableStateOf(false)}
     var mensaje by remember{mutableStateOf("Pulse para Reproducir la Sequencia")}
+    var showReward by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -211,7 +213,9 @@ fun GameScreen(Click:()->Unit){
                                                     )
                                                      state_scope = true
                                                     if(easy >= 7){
+                                                        showReward = true
                                                         var current_level = unLockedLevel + 1
+
 
                                                         edit_value(context,current_level) }
                                                     
@@ -427,5 +431,8 @@ fun GameScreen(Click:()->Unit){
             }
         }
         //==================================================================
+
+        if(showReward){
+            LevelUpRewardScreen(Clickkk = {})}
     }//AQUI TERMINA EL BOX
 }

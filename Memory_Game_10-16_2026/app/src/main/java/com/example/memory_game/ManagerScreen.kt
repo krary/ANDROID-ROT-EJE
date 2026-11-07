@@ -1,5 +1,6 @@
 package com.example.memory_game
 
+import LevelUpRewardScreen
 import android.content.Context
 import android.graphics.Paint
 import androidx.compose.animation.AnimatedVisibility
@@ -86,7 +87,7 @@ fun MainApp(){
     when(current_screen){
         Screen.Start -> StartScreen(Click= {current_screen = Screen.Game})
         Screen.Game -> Levels(Click = {current_screen = Screen.Start}, onLevelSelected ={current_screen=Screen.Level_On})
-        Screen.Level_On-> GameScreen (Click= {current_screen = Screen.Game} )
+        Screen.Level_On-> GameScreen (Click= {current_screen = Screen.Game}, Rewards = {} )
     }
 }
 
