@@ -1,6 +1,7 @@
 package com.example.memory_game
 
 
+import LevelUpRewardScreen
 import ShatterDemoScreen
 import  android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -16,7 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.memory_game.my_composable.GameScreen
 import com.example.memory_game.ui.theme.Memory_gameTheme
 import name
-import rewards
+
 
 
 class MainActivity : ComponentActivity() {
@@ -29,8 +30,7 @@ class MainActivity : ComponentActivity() {
         //ShatterDemoScreen()
         //MainApp()
         // name()
-        rewards()
-
+            LevelUpRewardScreen(Clickkk = {})
 
         }
     }}
