@@ -216,7 +216,7 @@ fun GameScreen(Click:()->Unit,Rewards:() -> Unit){
                                                     if(easy % 2 == 0){
 
                                                         var current_level = easy/2
-                                                        
+
 
 
                                                         edit_value(context,current_level)

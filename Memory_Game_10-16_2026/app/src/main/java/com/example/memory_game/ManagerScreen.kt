@@ -77,6 +77,13 @@ enum class Screen{
 }
 val Context.my_database by preferencesDataStore("user_data")
 val LEVEL_KEY = intPreferencesKey("level_user")
+val ACCES_DIRECT_KEY = intPreferencesKey("access_direct")
+suspend fun edit_value_acces_direct(context:Context,num:Int){
+    context.my_database.edit {
+        preferences ->
+        preferences[ACCES_DIRECT_KEY] = num
+    }
+}
 suspend fun edit_value(context:Context,num:Int){
     context.my_database.edit {
             preferences ->
