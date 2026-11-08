@@ -4,6 +4,7 @@ import LevelUpRewardScreen
 import android.content.Context
 import android.media.AudioAttributes
 import android.media.SoundPool
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
@@ -89,7 +90,7 @@ data class Param(
 
 @Composable
 fun GameScreen(Click:()->Unit,Rewards:() -> Unit){
-
+    var erase by remember{mutableStateOf(false)}
     val context = LocalContext.current
     val unLockedLevel by context.mi_data.data.map {
         preferences ->
@@ -212,13 +213,17 @@ fun GameScreen(Click:()->Unit,Rewards:() -> Unit){
                                                         1f
                                                     )
                                                      state_scope = true
-                                                    if(easy >= 7){
+                                                    if(easy % 2 == 0){
+
+                                                        var current_level = easy/2
+                                                        
+
+
+                                                        edit_value(context,current_level)
                                                         showReward = true
-                                                        var current_level = unLockedLevel + 1
 
 
-                                                        edit_value(context,current_level) }
-                                                    
+                                                    }
 
 
                                                     //=========================================================
@@ -394,7 +399,8 @@ fun GameScreen(Click:()->Unit,Rewards:() -> Unit){
                     .padding(vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center){
-                    IconButton(onClick = {Click()},modifier = Modifier.size(48.dp)){
+                    IconButton(onClick = {erase = true},
+                        modifier = Modifier.size(48.dp)){
                         Icon(
                             imageVector = Icons.Filled.Score,
                             contentDescription = "score",
@@ -432,7 +438,17 @@ fun GameScreen(Click:()->Unit,Rewards:() -> Unit){
         }
         //==================================================================
 
-        if(showReward){
-            LevelUpRewardScreen(Clickkk = {})}
-    }//AQUI TERMINA EL BOX
+        if(showReward && !state_scope){
+            LevelUpRewardScreen(Clickkk = {})
+            LaunchedEffect(showReward) {
+                delay(2500)
+                showReward = false
+            }
+
+        }
+    }
+
+
+
+//AQUI TERMINA EL BOX
 }

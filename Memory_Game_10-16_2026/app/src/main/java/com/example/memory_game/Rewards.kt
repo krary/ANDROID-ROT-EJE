@@ -1,4 +1,5 @@
 import android.R.attr.onClick
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
@@ -11,6 +12,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,6 +32,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,69 +46,86 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.memory_game.LEVEL_KEY
+import com.example.memory_game.Levels
 import com.example.memory_game.R
+import com.example.memory_game.my_composable.GameScreen
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.map
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 
-    @Composable
+@Composable
     fun LevelUpRewardScreen(Clickkk: () -> Unit) {
         // 1. Animación de escala para que las letras crezcan con rebote al aparecer
         val scale = remember { Animatable(0f) }
+         var goback by remember{mutableStateOf(false)}
+        var context = LocalContext.current
+        val info by context.mi_data.data.map {
+            preferences ->
+                preferences[LEVEL_KEY] ?:1
+        }.collectAsState(initial = 1)
+        if(!goback) {
+            LaunchedEffect(Unit) {
+                // Animación elástica de entrada para el "LEVEL UP"
+                scale.animateTo(
+                    targetValue = 1f,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessLow
 
-        LaunchedEffect(Unit) {
-            // Animación elástica de entrada para el "LEVEL UP"
-            scale.animateTo(
-                targetValue = 1f,
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessLow
+
+                    )
                 )
-            )
-            // Esperamos unos segundos mostrando el premio antes de cerrar/continuar
-            delay(2500)
+                // Esperamos unos segundos mostrando el premio antes de cerrar/continuar
 
-        }
-
-        // 2. Fondo semitransparente que oscurece todo lo de atrás
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.75f)),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                // Aquí podrías añadir un Canvas simulando rayos de sol giratorios de fondo,
-                // o un texto con efecto brillante.
-
-                Text(
-                    text = "⚡ LEVEL UP! ⚡",
-                    color = Color(0xFFFFD700), // Color dorado brillante
-                    fontSize = 42.sp,
-                    fontWeight = FontWeight.Black,
-                    modifier = Modifier
-                        .scale(scale.value) // Aplicamos la animación de escala
-                        .padding(16.dp)
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = "¡Nivel superado con éxito!",
-                    color = Color.White,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Medium
-                )
             }
+
+            // 2. Fondo semitransparente que oscurece todo lo de atrás
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 1f))
+                    .clickable { goback = true },
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    // Aquí podrías añadir un Canvas simulando rayos de sol giratorios de fondo,
+                    // o un texto con efecto brillante.
+
+                    Text(
+                        text = "⚡ LEVEL UP! ⚡",
+                        color = Color(0xFFFFD700), // Color dorado brillante
+                        fontSize = 42.sp,
+                        fontWeight = FontWeight.Black,
+                        modifier = Modifier
+                            .scale(scale.value) // Aplicamos la animación de escala
+                            .padding(16.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = "¡Nivel superado con éxito!",
+                        color = Color.White,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
+
         }
-    }
+    }//AQUI TERMINA EL COMPOSABLE
 
 
 

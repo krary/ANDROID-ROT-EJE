@@ -44,6 +44,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -63,6 +64,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.example.memory_game.my_composable.GameScreen
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
@@ -114,6 +116,7 @@ fun Levels(
     Click: () -> Unit,
     totalLevels:Int = 10,
     onLevelSelected: (Int) -> Unit){
+    var erase by remember{mutableStateOf(false)}
     var context = LocalContext.current
     val unlockedLevel by context.my_database.data.map{
         preferences ->
@@ -191,7 +194,7 @@ fun Levels(
                     .padding(vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center){
-                    IconButton(onClick = {expanded = !expanded},modifier = Modifier.size(48.dp)){
+                    IconButton(onClick = {erase = true},modifier = Modifier.size(48.dp)){
                      Icon(
                          imageVector = Icons.Filled.Score,
                          contentDescription = "score",
@@ -230,7 +233,12 @@ fun Levels(
         //==================================================================
 
     }//AQUI TERMINA EL BOX
-
+    if(erase){
+    LaunchedEffect(Unit){
+        edit_value(context,1)
+        delay(250)
+        erase = false
+    }}
 }//AQUI TERMINA EL COMPOSABLE
 
 
