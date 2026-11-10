@@ -16,7 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.memory_game.my_composable.GameScreen
 import com.example.memory_game.ui.theme.Memory_gameTheme
-import name
+import my_function
 
 
 
@@ -28,8 +28,8 @@ class MainActivity : ComponentActivity() {
         setContent {
 
         //ShatterDemoScreen()
-         MainApp()
-        // name()
+        // MainApp()
+        my_function()
         //LevelUpRewardScreen(Clickkk = {})
 
         }
