@@ -123,8 +123,10 @@ fun Levels(
     Click: () -> Unit,
     totalLevels:Int = 10,
     onLevelSelected: (Int) -> Unit){
-    var erase by remember{mutableStateOf(false)}
     var context = LocalContext.current
+    var erase by remember{mutableStateOf(false)}
+    LaunchedEffect(Unit) {  edit_value_acces_direct(context,3) }
+
     val unlockedLevel by context.my_database.data.map{
         preferences ->
                 preferences[LEVEL_KEY] ?: 1
@@ -162,12 +164,14 @@ fun Levels(
             items(totalLevels){index ->
                     val levelNum = index +1
                      val isUnlocked = levelNum <= unlockedLevel
+
                       LevelCard3D(
                           levelNumber = levelNum,
                           isUnlocked = isUnlocked,
                           onClick = {
                               if(isUnlocked){
                                   onLevelSelected(levelNum)
+
                               }
                           }
                       )
@@ -243,6 +247,7 @@ fun Levels(
     if(erase){
     LaunchedEffect(Unit){
         edit_value(context,1)
+        edit_value_acces_direct(context,3)
         delay(250)
         erase = false
     }}

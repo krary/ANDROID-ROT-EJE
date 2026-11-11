@@ -84,6 +84,7 @@ import com.example.memory_game.ACCES_DIRECT_KEY
 import com.example.memory_game.LEVEL_KEY
 import com.example.memory_game.R
 import com.example.memory_game.edit_value
+import com.example.memory_game.edit_value_acces_direct
 import com.example.memory_game.my_database
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.map
@@ -114,7 +115,7 @@ fun GameScreen(Click:()->Unit,Rewards:() -> Unit){
     val level_up by context.my_database.data.map {
         preferences ->
             preferences[ACCES_DIRECT_KEY] ?:3
-    }
+    }.collectAsState(initial = 1)
     var expanded by remember{mutableStateOf(false)}
     var win by remember{mutableStateOf(false)}
     var param by remember{mutableStateOf(listOf<Param>())}
@@ -264,9 +265,9 @@ fun GameScreen(Click:()->Unit,Rewards:() -> Unit){
                                                         1f
                                                     )
                                                      state_scope = true
-                                                    if(easy % 2 == 0){
+                                                    if(level_up % 2 == 0){
 
-                                                        var current_level = easy/2
+                                                        var current_level = level_up/2
 
 
 
@@ -329,7 +330,10 @@ fun GameScreen(Click:()->Unit,Rewards:() -> Unit){
 
 
                                                     //========================================================
-                                                    easy++
+
+                                                    val current_levelUp = level_up + 1
+                                                    edit_value_acces_direct(context,current_levelUp)
+                                                    //easy++
                                                     //num_squad += 3
 
                                                 } else {
@@ -375,7 +379,7 @@ fun GameScreen(Click:()->Unit,Rewards:() -> Unit){
                         state_player = false
                         state_scope = true
                         index_player = 0
-                        random_list = List(easy) { Random.nextInt(9) }
+                        random_list = List(level_up) { Random.nextInt(9) }
                         for (c in random_list) {
                             cuadrado_activo = c
                             delay(500)
