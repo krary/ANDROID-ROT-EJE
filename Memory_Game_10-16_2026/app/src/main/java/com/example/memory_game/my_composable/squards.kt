@@ -193,7 +193,7 @@ fun GameScreen(Click:()->Unit,Rewards:() -> Unit){
                     initialValue = 1f,
                     targetValue =   1.4f,
                     animationSpec = infiniteRepeatable(
-                        animation = tween(durationMillis = 700,easing = FastOutSlowInEasing),
+                        animation = tween(durationMillis = 500,easing = FastOutSlowInEasing),
                         repeatMode = RepeatMode.Reverse,
                         initialStartOffset = StartOffset(offsetMillis = index * 100)
                     ),
@@ -501,7 +501,7 @@ fun GameScreen(Click:()->Unit,Rewards:() -> Unit){
             }
 
         }
-        if(!state_player && state_scope){
+        if(!state_player && state_scope && !showReward){
             state_message = true
             LaunchedEffect(Unit){
                 message = "Memoriza la secuencia!!"
