@@ -76,12 +76,15 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.example.memory_game.ACCES_DIRECT_KEY
 import com.example.memory_game.LEVEL_KEY
 import com.example.memory_game.R
 import com.example.memory_game.edit_value
+import com.example.memory_game.my_database
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -100,12 +103,18 @@ data class Param(
 fun GameScreen(Click:()->Unit,Rewards:() -> Unit){
     var message by remember{mutableStateOf("Memoriza la secuencia!!")}
     var infinityTransition = rememberInfiniteTransition("wave transition")
+    var state_message by remember{mutableStateOf(false)}
+
     var erase by remember{mutableStateOf(false)}
     val context = LocalContext.current
     val unLockedLevel by context.mi_data.data.map {
         preferences ->
             preferences[LEVEL_KEY] ?:1
     }.collectAsState(initial = 1)
+    val level_up by context.my_database.data.map {
+        preferences ->
+            preferences[ACCES_DIRECT_KEY] ?:3
+    }
     var expanded by remember{mutableStateOf(false)}
     var win by remember{mutableStateOf(false)}
     var param by remember{mutableStateOf(listOf<Param>())}
@@ -191,13 +200,21 @@ fun GameScreen(Click:()->Unit,Rewards:() -> Unit){
                     )
 
 
-
+ if(state_message) {
                 Text(
                     text = ch.toString(),
                     color = Color.White,
                     style = MaterialTheme.typography.headlineLarge,
                     modifier = Modifier.scale(scale)
-                )
+                )}
+                else{
+     Text(
+         text = ch.toString(),
+         color = Color.Gray,
+         fontWeight = FontWeight.Bold,
+         style = MaterialTheme.typography.headlineLarge)
+
+ }
 
             }//AQUI TERMINA EL FOR
 
@@ -480,16 +497,17 @@ fun GameScreen(Click:()->Unit,Rewards:() -> Unit){
             }
 
         }
-        if(state_scope){
-
+        if(!state_player && state_scope){
+            state_message = true
             LaunchedEffect(Unit){
-                message = " "
+                message = "Memoriza la secuencia!!"
 
 
             }
 
         }else{
-            message = "Tu turno!!"
+            state_message = false
+            message = "Reproduce"
         }
 
 
