@@ -481,9 +481,11 @@ fun GameScreen(Click:()->Unit,Rewards:() -> Unit){
 
         }
         if(state_scope){
-            message = "Memoriza la secuencia!!"
-            LaunchedEffect(state_scope){
-                delay(2500)
+
+            LaunchedEffect(Unit){
+                message = " "
+
+
             }
 
         }else{
