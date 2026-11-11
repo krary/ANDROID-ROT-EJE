@@ -6,6 +6,13 @@ import android.media.AudioAttributes
 import android.media.SoundPool
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.StartOffset
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -62,6 +69,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -90,6 +98,8 @@ data class Param(
 
 @Composable
 fun GameScreen(Click:()->Unit,Rewards:() -> Unit){
+    var message by remember{mutableStateOf("Memoriza la secuencia!!")}
+    var infinityTransition = rememberInfiniteTransition("wave transition")
     var erase by remember{mutableStateOf(false)}
     val context = LocalContext.current
     val unLockedLevel by context.mi_data.data.map {
@@ -166,11 +176,35 @@ fun GameScreen(Click:()->Unit,Rewards:() -> Unit){
                     )
                 }
             }
-            Text(
-                text = "Memoriza la secuencia!!",
-                color = Color.White,
-                style = MaterialTheme.typography.headlineLarge
-            )
+            ///////////////////////////////////////////////////////////
+            Row(horizontalArrangement = Arrangement.Center){
+            message.forEachIndexed { index, ch ->
+                val scale by infinityTransition.animateFloat(
+                    initialValue = 1f,
+                    targetValue =   1.4f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(durationMillis = 700,easing = FastOutSlowInEasing),
+                        repeatMode = RepeatMode.Reverse,
+                        initialStartOffset = StartOffset(offsetMillis = index * 100)
+                    ),
+                    label = "Latter_scale_$index"
+                    )
+
+
+
+                Text(
+                    text = ch.toString(),
+                    color = Color.White,
+                    style = MaterialTheme.typography.headlineLarge,
+                    modifier = Modifier.scale(scale)
+                )
+
+            }//AQUI TERMINA EL FOR
+
+            }
+
+
+            ///////////////////////////////////////////////////////////
             Spacer(modifier = Modifier.height(24.dp))
             LazyVerticalGrid(
                 columns = GridCells.Fixed(3),
@@ -446,6 +480,17 @@ fun GameScreen(Click:()->Unit,Rewards:() -> Unit){
             }
 
         }
+        if(state_scope){
+            message = "Memoriza la secuencia!!"
+            LaunchedEffect(state_scope){
+                delay(2500)
+            }
+
+        }else{
+            message = "Tu turno!!"
+        }
+
+
     }
 
 

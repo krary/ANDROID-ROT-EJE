@@ -28,8 +28,8 @@ class MainActivity : ComponentActivity() {
         setContent {
 
         //ShatterDemoScreen()
-        // MainApp()
-        my_function()
+        MainApp()
+        //my_function()
         //LevelUpRewardScreen(Clickkk = {})
 
         }
