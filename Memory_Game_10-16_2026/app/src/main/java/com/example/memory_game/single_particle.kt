@@ -1,5 +1,8 @@
 
+import android.Manifest
 import android.content.Context
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.StartOffset
@@ -7,14 +10,23 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,58 +53,44 @@ val MY_NUMBER_KEY = intPreferencesKey("age")
 
 @Composable
 fun my_function(){
-      var message by remember{mutableStateOf("HELLO WORLD")}
-      var animacion  = rememberInfiniteTransition("waveTransition")
-      var start_animacion by remember{mutableStateOf(false)}
+      var clave by remember{mutableStateOf("MESSAGE")}
+     val launcher =  rememberLauncherForActivityResult(
+      contract = ActivityResultContracts.RequestPermission()
+     ){
+           granted ->
+           if(granted ){
+             clave = "SE PUEDE ABRIR LA CAMARA"
+           }
+           else{
+                 clave = "NO SE PUEDE ABRIR LA CAMARA"
+           }
 
 
-
-
+     }
+    Column(modifier = Modifier
+        .fillMaxSize()){
 
       Box(modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            ,contentAlignment = Alignment.Center) {
-            Button(onClick = {start_animacion = !start_animacion}){
-                  Text("Start",color = Color.DarkGray,fontWeight = FontWeight.Bold,fontSize = 12.sp)
-            }
-            Spacer(Modifier.height(34.dp))
-            if(start_animacion){
-                  Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                  ) {
-                        message.forEachIndexed { index, ch ->
-                              if(ch == ' '){
-                                    Text(text = "", fontSize = 32.sp)
-                                    return@forEachIndexed
-                              }
-                              val scale by animacion.animateFloat(
-                                    initialValue = 1f,
-                                    targetValue = 1.4f,
-                                    animationSpec = infiniteRepeatable(
-                                          animation = tween(durationMillis = 700,easing = FastOutSlowInEasing),
-                                          repeatMode = RepeatMode.Reverse,
-                                          initialStartOffset = StartOffset(offsetMillis = index * 100)
-                                    ),
-                                    label = "LetterScale_$index"
-                              )
-                              Text(
-                                    text = ch.toString(),
-                                    color = Color.Blue,
-                                    fontSize = 34.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.scale(scale)
-                              )
 
-                        }
+          .padding(vertical = 200.dp)
+          ,contentAlignment = Alignment.Center){
+          //Text(clave,fontSize = 34.sp,fontWeight = FontWeight.Bold,color = Color.White)
+          Icon(
+              imageVector= Icons.Filled.CameraAlt,
+              contentDescription = "Foto de Perfil",
+              tint = Color.Blue,
+              modifier = Modifier.size(45.dp)
+                  .clickable(onClick = {}))
 
 
-
-
-
-
-                  }
-            }
       }
+    Box(modifier = Modifier
+            .size(90.dp)
+            .padding(vertical = 200.dp)){
+        Text("<<Revoque>>",fontSize = 32.sp,fontWeight = FontWeight.Bold,color = Color.White)
+    }
+
+    }
 }
