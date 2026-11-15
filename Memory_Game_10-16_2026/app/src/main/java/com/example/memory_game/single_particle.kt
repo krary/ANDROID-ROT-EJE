@@ -7,9 +7,11 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.Settings
+import android.util.Base64
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.collection.intFloatMapOf
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.StartOffset
@@ -59,53 +61,91 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.example.memory_game.my_database
+import java.io.ByteArrayOutputStream
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
 
 
 val Context.mi_data by preferencesDataStore( name = "user_preferences")
 val USER_NAME_KEY = stringPreferencesKey("user_name")
 val MY_NUMBER_KEY = intPreferencesKey("age")
 
-@Composable
-fun  my_function(){
-    var foto by remember{mutableStateOf(false)}
-    var mybitmap by remember{mutableStateOf< Bitmap?>(null) }
-    var context = LocalContext.current
-    var activity = context as Activity
-    val permiso = android.Manifest.permission.CAMERA
-      var clave by remember{mutableStateOf("MESSAGE")}
-    val final_launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicturePreview()){
-        bitmap: Bitmap? ->
-        if(bitmap != null){
-            mybitmap = bitmap }
+val Context.my_firebase by preferencesDataStore("user_preferences")
+var FOTO = stringPreferencesKey("foto")
+suspend fun edit_my_firebase(context: Context,bitmap: Bitmap){
 
+    var data_jpg = ByteArrayOutputStream()
+    bitmap.compress(
+        Bitmap.CompressFormat.JPEG,
+        85,
+        data_jpg)
+    val byteArray = data_jpg.toByteArray()
+    val photoString = Base64.encodeToString(
+        byteArray,
+        Base64.NO_WRAP
+    )
+
+
+
+
+    context.my_database.edit {
 
     }
-     val launcher =  rememberLauncherForActivityResult(
-      contract = ActivityResultContracts.RequestPermission()){
-           granted ->
-         if(!granted){
-             val check = ActivityCompat.shouldShowRequestPermissionRationale(
-                 activity,
-                 permiso)
-             if(!check){
-                 val intent = Intent(
-                     Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                     Uri.fromParts("package", context.packageName, null)
-                 )
-                 context.startActivity(intent)
-             }
-         }
-         if(granted){
-             foto = true
-         }
+}
 
 
 
-     }
+
+@Composable
+fun  my_function(){
+    var avilable_foto by remember{mutableStateOf(false)}
+    var info_foto by remember{mutableStateOf(false)}
+    var context = LocalContext.current
+    var activity = context as Activity
+    var my_bitmap by remember{mutableStateOf<Bitmap?>(null)}
+    val permiso_camara = android.Manifest.permission.CAMERA
+    var launcher_camera_out = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicturePreview()){
+        bitmap: Bitmap ? ->
+        if(bitmap != null){
+            my_bitmap = bitmap
+            avilable_foto = true
+
+        }
+    }
+    val permiso_concedido = ContextCompat.checkSelfPermission(
+        context,
+        permiso_camara)==PackageManager.PERMISSION_GRANTED
+    if(permiso_concedido){ info_foto = true}
+    var launcher_camera = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()){
+        granted ->
+        if(!granted){
+            val check = ActivityCompat.shouldShowRequestPermissionRationale(
+             activity,
+                permiso_camara)
+            if(!check){
+                val intent = Intent(
+                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                    Uri.fromParts("package",context.packageName,null)
+                )
+                context.startActivity(intent)
+            }
+        }
+        else{
+             info_foto = true
+            //Toast.makeText(context,"SE CAMBIO EL VALOR..",Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
+
+
     Column(modifier = Modifier
         .fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -117,27 +157,35 @@ fun  my_function(){
 
           .padding(vertical = 200.dp)
           ,contentAlignment = Alignment.Center){
-          Text(clave,fontSize = 34.sp,fontWeight = FontWeight.Bold,color = Color.White)
           Icon(
               imageVector= Icons.Filled.CameraAlt,
               contentDescription = "Foto de Perfil",
               tint = Color.Blue,
               modifier = Modifier.size(45.dp)
                   .clickable(onClick = {
-                      launcher.launch(permiso)
+                      launcher_camera.launch(permiso_camara)
                   }))
 
 
       }
         Box(modifier = Modifier
-            .size(90.dp)
+            .size(190.dp)
             .clip(CircleShape)
             .background(Color(0xFF353B50))
             .border(3.dp, Color.Green/*(0xFF55EFC4)*/,CircleShape)
-            .clickable(onClick = {}))
-
+            .clickable(onClick = {
+                if(info_foto){
+                    launcher_camera_out.launch(null)
+                }}))
         {
-
+            if(my_bitmap != null){
+                Image(
+                    bitmap = my_bitmap!!.asImageBitmap(),
+                    contentDescription = "Foto de perfil",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            }
         }
     }
 }
