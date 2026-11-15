@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.provider.Settings
 import android.util.Base64
@@ -41,6 +42,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -69,6 +72,12 @@ import com.example.memory_game.my_database
 import java.io.ByteArrayOutputStream
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import okio.CipherSource
+import java.io.File
+import java.io.FileOutputStream
 
 
 val Context.mi_data by preferencesDataStore( name = "user_preferences")
@@ -76,25 +85,23 @@ val USER_NAME_KEY = stringPreferencesKey("user_name")
 val MY_NUMBER_KEY = intPreferencesKey("age")
 
 val Context.my_firebase by preferencesDataStore("user_preferences")
-var FOTO = stringPreferencesKey("foto")
-suspend fun edit_my_firebase(context: Context,bitmap: Bitmap){
-
-    var data_jpg = ByteArrayOutputStream()
-    bitmap.compress(
-        Bitmap.CompressFormat.JPEG,
-        85,
-        data_jpg)
-    val byteArray = data_jpg.toByteArray()
-    val photoString = Base64.encodeToString(
-        byteArray,
-        Base64.NO_WRAP
-    )
+var FOTO_BITMAP = stringPreferencesKey("foto")
 
 
-
-
-    context.my_database.edit {
-
+suspend fun edit_path(context: Context,bitmap: Bitmap):String{
+    var foto = File(context.filesDir,"photo_perfil")
+    FileOutputStream(foto).use {
+        outputStream ->
+        bitmap.compress(
+            Bitmap.CompressFormat.JPEG,
+            85,
+            outputStream) }
+    return foto.absolutePath
+}
+suspend fun edit_foto_bit_map(context:Context,path:String){
+    context.my_firebase.edit {
+        preferences ->
+            preferences[FOTO_BITMAP] = path
     }
 }
 
@@ -103,19 +110,38 @@ suspend fun edit_my_firebase(context: Context,bitmap: Bitmap){
 
 @Composable
 fun  my_function(){
+    var scopelauncher = rememberCoroutineScope()
     var avilable_foto by remember{mutableStateOf(false)}
     var info_foto by remember{mutableStateOf(false)}
     var context = LocalContext.current
     var activity = context as Activity
     var my_bitmap by remember{mutableStateOf<Bitmap?>(null)}
     val permiso_camara = android.Manifest.permission.CAMERA
+    val fotografia by context.my_firebase.data.map {
+        preferences ->
+        preferences[FOTO_BITMAP] ?: ""
+    }.collectAsState("")
+
+    LaunchedEffect(fotografia){
+        if(fotografia.isNotEmpty() && my_bitmap == null){
+            val file = File(fotografia)
+            if(file.exists()){
+                my_bitmap = BitmapFactory.decodeFile(file.absolutePath)
+            }
+        }
+    }
+
+
+
     var launcher_camera_out = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicturePreview()){
         bitmap: Bitmap ? ->
         if(bitmap != null){
             my_bitmap = bitmap
-            avilable_foto = true
-
+            scopelauncher.launch {
+                val path = edit_path(context,bitmap)
+                edit_foto_bit_map(context,path)
+            }
         }
     }
     val permiso_concedido = ContextCompat.checkSelfPermission(
@@ -178,14 +204,15 @@ fun  my_function(){
                     launcher_camera_out.launch(null)
                 }}))
         {
-            if(my_bitmap != null){
+              if(my_bitmap != null){
                 Image(
                     bitmap = my_bitmap!!.asImageBitmap(),
                     contentDescription = "Foto de perfil",
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
+              }
             }
-        }
+
     }
 }
