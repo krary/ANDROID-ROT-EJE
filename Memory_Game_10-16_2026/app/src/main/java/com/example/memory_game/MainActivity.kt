@@ -17,7 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.memory_game.my_composable.GameScreen
 import com.example.memory_game.ui.theme.Memory_gameTheme
 import my_function
-
+import user
 
 
 class MainActivity : ComponentActivity() {
@@ -29,8 +29,8 @@ class MainActivity : ComponentActivity() {
 
         //ShatterDemoScreen()
         //MainApp()
-        my_function()
+        //my_function()
         //LevelUpRewardScreen(Clickkk = {})
-
+user()
         }
     }}

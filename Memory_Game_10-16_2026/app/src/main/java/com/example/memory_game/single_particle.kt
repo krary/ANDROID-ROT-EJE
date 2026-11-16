@@ -195,7 +195,7 @@ fun  my_function(){
 
       }
         Box(modifier = Modifier
-            .size(190.dp)
+            .size(45.dp)
             .clip(CircleShape)
             .background(Color(0xFF353B50))
             .border(3.dp, Color.Green/*(0xFF55EFC4)*/,CircleShape)

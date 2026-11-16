@@ -2,6 +2,7 @@
 
     import LevelUpRewardScreen
     import android.content.Context
+    import android.graphics.Bitmap
     import android.graphics.Paint
     import androidx.compose.animation.AnimatedVisibility
     import androidx.compose.animation.expandHorizontally
@@ -62,11 +63,14 @@
     import androidx.compose.ui.unit.sp
     import androidx.datastore.preferences.core.edit
     import androidx.datastore.preferences.core.intPreferencesKey
+    import androidx.datastore.preferences.core.stringPreferencesKey
     import androidx.datastore.preferences.preferencesDataStore
     import com.example.memory_game.my_composable.GameScreen
     import kotlinx.coroutines.delay
     import kotlinx.coroutines.flow.map
     import kotlinx.coroutines.launch
+    import java.io.File
+    import java.io.FileOutputStream
 
     enum class Screen{
         Start,
@@ -78,6 +82,30 @@
     val Context.my_database by preferencesDataStore("user_data")
     val LEVEL_KEY = intPreferencesKey("level_user")
     val ACCES_DIRECT_KEY = intPreferencesKey("access_direct")
+
+    val USUARIO_1 = stringPreferencesKey("usuario_1")
+    val USUARIO_2 = stringPreferencesKey("usuario_2")
+    val USUARIO_3 = stringPreferencesKey("usuario_3")
+    suspend fun bitmap_usuario(context:Context,bitmap: Bitmap,identificacion: Int):String{
+        val file = File(context.filesDir,"usuario_$identificacion.jpg")
+        FileOutputStream(file).use {
+            outputStream ->
+               bitmap.compress(
+                   Bitmap.CompressFormat.JPEG,
+                   85,
+                   outputStream) }
+        return file.absolutePath }
+    suspend fun edit_value_usuario(context: Context,foto: String, usuario: Int){
+        context.my_database.edit {
+            preferences ->
+               when(usuario){
+                   1 -> preferences[USUARIO_1] = foto
+                   2 -> preferences[USUARIO_2] = foto
+                   3 -> preferences[USUARIO_3] = foto
+               } } }
+
+
+
     suspend fun edit_value_acces_direct(context:Context,num:Int){
         context.my_database.edit {
             preferences ->
